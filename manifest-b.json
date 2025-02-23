@@ -1,0 +1,41 @@
+ {
+    "name": "Trade Rocket",
+    "version": "1.0.17",
+    "description": "Making auto trading easy!",
+	  "options_page": "options.html",
+    "permissions": ["webNavigation","webRequest","notifications","storage","activeTab","declarativeContent"],
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "host_permissions": [
+    "http://*.streak.com/*"
+    ],
+    "optional_host_permissions": [
+      "*://*.zerodha.com/*",
+      "*://*.angelbroking.com/*",
+      "*://*.5paisa.com/*",
+      "*://*.streak.tech/*",
+      "*://*.upstox.com/*",
+      "*://*.streak.ninja/*"
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "images/get_started16.png"
+      }
+    },
+    "icons": {
+      "16": "images/get_started16.png",
+      "48": "images/get_started16.png",
+      "128": "images/get_started16.png"
+    },
+    "content_scripts": [
+    {
+      "matches": ["*://*.zerodha.com/*","*://*.angelbroking.com/*","*://*.5paisa.com/*","*://*.upstox.com/*","*://*.streak.tech/*","*://*.streak.ninja/*"],
+      "js": ["jquery.js","moment.js","contentScript.js"],
+      "run_at": "document_start"
+    }
+    ],
+    "manifest_version": 3
+  }
