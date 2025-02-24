@@ -32,6 +32,7 @@ var placed_orders = [];
 var notificationsUsed = {};
 var notificationOrdersSet = {};
 function fetch_notifications(url,requestHeaders){
+    console.log("fetching notification")
     fetching_notif = true;
     var params = {
         // 'deployment_uuid':dep_id,
@@ -94,7 +95,7 @@ function fetch_notifications(url,requestHeaders){
                     // if (moment()-dep_notif_time<60000*5 && notificationsUsed[dep_notif['notification_uuid']]==undefined){
                         // console.log("22222 notif_dep_id",dep_notif,moment().valueOf()/1000,dep_notif_time);
                     if (moment().valueOf()/1000-dep_notif_time<60000*5 && notificationsUsed[latest_notif['notification_uuid']]==undefined && (notificationOrdersSet[latest_notif['notification_uuid']]==undefined||notificationOrdersSet[latest_notif['notification_uuid']]==0)){
-                        // console.log("33333 notif_dep_id",dep_notif);
+                         console.log("33333 notif_dep_id",dep_notif);
                         if(latest_notif['notification-type']=="order-notification" || latest_notif['notification-type']=="discipline-notif" || latest_notif['notification-type']=="cancel-discipline-notif" || latest_notif['price_trigger-notification']!=undefined)
                         {
                             if (latest_notif["alert_type"]=="notification_alert"){
