@@ -1,19 +1,21 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+document.addEventListener("DOMContentLoaded", function () {
+  let toggleSwitch = document.getElementById("toggleExtension");
+  let toggleText = document.getElementById("toggleText");
 
-'use strict';
+  // Load the current state from Chrome storage
+  chrome.storage.sync.get(["extensionEnabled"], function (result) {
+      toggleSwitch.checked = result.extensionEnabled || false;
+      toggleText.innerText = toggleSwitch.checked ? "Extension Enabled" : "Extension Disabled";
+  });
 
-let changeColor = document.getElementById('changeColor');
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
+  // Listen for toggle switch changes
+  toggleSwitch.addEventListener("change", function () {
+      let isEnabled = toggleSwitch.checked;
+      chrome.storage.sync.set({ "extensionEnabled": isEnabled }, function () {
+          toggleText.innerText = isEnabled ? "Extension Enabled" : "Extension Disabled";
+          
+          // Send a message to background.js
+          chrome.runtime.sendMessage({ action: isEnabled ? "ENABLE_EXTENSION" : "DISABLE_EXTENSION" });
+      });
+  });
 });
-changeColor.onclick = function(element) {
-    let color = element.target.value;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      chrome.tabs.executeScript(
-          tabs[0].id,
-          {code: 'document.body.style.backgroundColor = "' + color + '";'});
-    });
-  };
