@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "description": "Making auto trading easy!",
   "icons": {
-    "16": "images/get_started16.png",
-    "48": "images/get_started16.png",
-    "128": "images/get_started16.png"
+    "16": "images/icon.png",
+    "48": "images/icon.png",
+    "128": "images/icon.png"
   },
   "background": {
     "service_worker": "background-b.js"
@@ -39,7 +39,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "images/get_started16.png"
+    "default_icon": "images/icon.png"
   },
   "options_page": "options.html",
   "update_url": "https://clients2.google.com/service/update2/crx"
