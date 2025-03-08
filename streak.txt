@@ -1,0 +1,6 @@
+base url: https://api-op.streak.tech
+
+"https://api.streak.tech/place_order/
+wss://ss-op.streak.tech/v2
+wss://nt-op.streak.tech/notification
+https://api-op.streak.tech/notifications_handler
