@@ -4,3 +4,75 @@ base url: https://api-op.streak.tech
 wss://ss-op.streak.tech/v2
 wss://nt-op.streak.tech/notification
 https://api-op.streak.tech/notifications_handler
+
+
+sample res
+{
+    "status": "success",
+    "results": {
+        "notification_dict": {
+            "95b9c600-369c-4e51-bba6-0df45bd8f67a": {
+                "notifications": [
+                    {
+                        "action_type": "BUY",
+                        "alert_type": "notification_alert",
+                        "algo_name": "piv test",
+                        "algo_uuid": "56866aa1-4733-4407-97d9-c853d481d388",
+                        "broker": "zerodha",
+                        "buffer": "0",
+                        "default_price": "close",
+                        "deployment_type": "Notifications",
+                        "deployment_uuid": "95b9c600-369c-4e51-bba6-0df45bd8f67a",
+                        "notification-type": "order-notification",
+                        "notification_alert_type": "",
+                        "notification_msg": "",
+                        "notification_time": "2025-05-13T12:28:15.728085",
+                        "notification_uuid": "bbdd43be-4f54-4696-8462-51ed6201f26c",
+                        "order_id": "",
+                        "order_type": "MARKET",
+                        "price_trigger-notification": "",
+                        "product": "MIS",
+                        "quantity": "5",
+                        "seg": "NSE",
+                        "segment": "NSE",
+                        "sender": "lambda",
+                        "status": "",
+                        "stop_loss": "0.20",
+                        "sym": "JIOFIN",
+                        "symbol": "JIOFIN",
+                        "target_profit": "1.00",
+                        "time_period": "",
+                        "tpsl_type": "pct",
+                        "trigger_price": 268.7,
+                        "trigger_time": 1747119420,
+                        "type": "",
+                        "user_uuid": "a6d17302-c89c-4a62-9f06-4eb80c1ca987",
+                        "variety": "REGULAR"
+                    }
+                ],
+                "algo_name": "piv test",
+                "algo_uuid": "56866aa1-4733-4407-97d9-c853d481d388",
+                "deployment_uuid": "95b9c600-369c-4e51-bba6-0df45bd8f67a",
+                "deployment_type": "Notifications",
+                "screener_name": "",
+                "screener_uuid": "",
+                "alert_uuid": "",
+                "slug": ""
+            }
+        },
+        "unread_count": 1,
+        "used": {},
+        "read": {},
+        "unread_split_count": {
+            "direct": 0,
+            "notifications": 1,
+            "paper": 0
+        },
+        "notif_dep_list": [
+            [
+                "95b9c600-369c-4e51-bba6-0df45bd8f67a",
+                "1747139295"
+            ]
+        ]
+    }
+}

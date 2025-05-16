@@ -1,20 +1,22 @@
+import { logMessage } from './logutil.js';
+
 let isExtentionEnabled = false;
 let istargetSiteActive = false;
 let tabActivatedListener = null;
 let websocket = null;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("Received Message:", message);
-    
     if (message?.action === "ENABLE_EXTENSION") {
         isExtentionEnabled = true;
         if (!tabActivatedListener) {
             tabActivatedListener = () => {
-                console.log("Strike Auto extension is active: " + isExtentionEnabled);
+               const msg=  "Strike Auto extension is active: " + isExtentionEnabled;
+               logMessage(msg);
                 checkActiveTabsAndExecute();
             };
             chrome.tabs.onActivated.addListener(tabActivatedListener);
             console.log("Event Listener Added");
+            
         }
     } else if (message?.action === "DISABLE_EXTENSION") {
         isExtentionEnabled = false;
@@ -24,9 +26,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             tabActivatedListener = null;
         }
     }
-    manageWebSocket();
+    //manageWebSocket();
 });
-
+if(isExtentionEnabled){
+    checkActiveTabsAndExecute();
+}
 function checkActiveTabsAndExecute() {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         if (tabs.length === 0) return;
@@ -34,24 +38,38 @@ function checkActiveTabsAndExecute() {
         let url = activeTab?.url;
         istargetSiteActive = url?.includes("streak.tech") || url?.includes("zerodha.com");
         console.log(istargetSiteActive ? " Target Site is Active!" : " Target Site is NOT Active.");
-        manageWebSocket();
+        if(istargetSiteActive){
+            const msg=  "Target Site is Active! : " + url;
+               logMessage(msg);
+           sendColorChangeToActiveTab();
+           manageWebSocket();
+        }
+        
     });
 }
-
+function sendColorChangeToActiveTab() {
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (tab?.id) {
+      chrome.tabs.sendMessage(tab.id, { action: "change-color" });
+    }
+  });
+}
 function manageWebSocket() {
     if (isExtentionEnabled && istargetSiteActive) {
         if (!websocket) {
             createWebSocketConnection();
         }
-    } else {
-        closeWebSocketConnection();
-    }
+    } 
+    // else {
+    //     closeWebSocketConnection();
+    // }
 }
 
 function createWebSocketConnection() {
     if (!("WebSocket" in self)) return;
     if (websocket) return;
-
+    const msg = "websocket cration started";
+    logMessage(msg)
     chrome.storage.local.get("instance", (data) => {
         if (data.instance) {
             websocket = new WebSocket(`wss://${data.instance}/ws/demoPushNotifications`);
@@ -71,6 +89,7 @@ function setupWebSocketHandlers() {
 
     websocket.onmessage = (event) => {
         let received_msg = JSON.parse(event.data);
+        const msg = "message received :"+ JSON.stringify(event);
         let demoNotificationOptions = {
             type: "basic",
             title: received_msg.subject,
