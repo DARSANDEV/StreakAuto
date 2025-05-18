@@ -5,29 +5,36 @@ let istargetSiteActive = false;
 let tabActivatedListener = null;
 let websocket = null;
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message?.action === "ENABLE_EXTENSION") {
-        isExtentionEnabled = true;
-        if (!tabActivatedListener) {
-            tabActivatedListener = () => {
-               const msg=  "Strike Auto extension is active: " + isExtentionEnabled;
-               logMessage(msg);
-                checkActiveTabsAndExecute();
-            };
-            chrome.tabs.onActivated.addListener(tabActivatedListener);
-            console.log("Event Listener Added");
+chrome.storage.sync.get({ "isExtensionEnabled":Boolean }, (result) => {
+    isExtentionEnabled = result;
+    const msg=  "Strike Auto extension is active: " + isExtentionEnabled;
+    logMessage(msg);
+  });
+
+  // Functione moved to storage based event instead of message based
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//     if (message?.action === "ENABLE_EXTENSION") {
+//         isExtentionEnabled = true;
+//         if (!tabActivatedListener) {
+//             tabActivatedListener = () => {
+//                const msg=  "Strike Auto extension is active: " + isExtentionEnabled;
+//                logMessage(msg);
+//                 checkActiveTabsAndExecute();
+//             };
+//             chrome.tabs.onActivated.addListener(tabActivatedListener);
+//             console.log("Event Listener Added");
             
-        }
-    } else if (message?.action === "DISABLE_EXTENSION") {
-        isExtentionEnabled = false;
-        if (tabActivatedListener) {
-            chrome.tabs.onActivated.removeListener(tabActivatedListener);
-            console.log("Event Listener Removed");
-            tabActivatedListener = null;
-        }
-    }
-    //manageWebSocket();
-});
+//         }
+//     } else if (message?.action === "DISABLE_EXTENSION") {
+//         isExtentionEnabled = false;
+//         if (tabActivatedListener) {
+//             chrome.tabs.onActivated.removeListener(tabActivatedListener);
+//             console.log("Event Listener Removed");
+//             tabActivatedListener = null;
+//         }
+//     }
+//     //manageWebSocket();
+// });
 if(isExtentionEnabled){
     checkActiveTabsAndExecute();
 }
