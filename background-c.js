@@ -1,53 +1,112 @@
 import { logMessage } from './logutil.js';
 
-let isExtentionEnabled = false;
-let istargetSiteActive = false;
-let tabActivatedListener = null;
-let websocket = null;
+let isExtensionEnabled = false;
+let isTargetSiteActive = false;
 
+chrome.storage.sync.get({ isExtensionEnabled: false }, (result) => {
+  isExtensionEnabled = result.isExtensionEnabled;
+  const msg = "Strike Auto extension is active: " + isExtensionEnabled;
+  logMessage(msg);
+  console.log(msg);
+  if (isExtensionEnabled) activateTabListener();
+});
 
-chrome.storage.sync.get({ "isExtensionEnabled":{} }, (result) => {
-    console.log(result);
-    isExtentionEnabled = result?.isExtensionEnabled ?? false;
-    const msg=  "Strike Auto extension is active: " + isExtentionEnabled;
-    logMessage(msg);
-    console.log(msg);
-  });
-
-  chrome.storage.onChanged.addListener((changes, area) => {
-    
+chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync' && changes.isExtensionEnabled) {
-    console.log("change:"+ JSON.stringify(changes));
-    isExtentionEnabled = changes.isExtensionEnabled.newValue;
-    checkActiveTabsAndExecute();
-    console.log(isExtentionEnabled);
+    isExtensionEnabled = changes.isExtensionEnabled.newValue;
+    console.log("Extension status changed:", isExtensionEnabled);
+    if (isExtensionEnabled) {
+      activateTabListener();
+    }
   }
 });
 
-if(isExtentionEnabled){
-    checkActiveTabsAndExecute()
+function activateTabListener() {
+  chrome.tabs.onActivated.addListener(() => {
+    checkActiveTabAndExecute();
+  });
+
+  // Also handle tab updates (e.g., navigation)
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === 'complete') {
+      checkActiveTabAndExecute();
+    }
+  });
+
+  // Immediate check on first activation
+  checkActiveTabAndExecute();
 }
-  function checkActiveTabsAndExecute() {
-      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-          if (tabs.length === 0) return;
-          let activeTab = tabs[0];
-          let url = activeTab?.url;
-          istargetSiteActive = url?.includes("streak.tech") || url?.includes("zerodha.com");
-          console.log(istargetSiteActive ? " Target Site is Active!" : " Target Site is NOT Active.");
-          if(istargetSiteActive){
-              const msg=  "Target Site is Active! : " + url;
-                 logMessage(msg);
-             sendColorChangeToActiveTab();
-             //manageWebSocket();
-          }
-          
+
+function checkActiveTabAndExecute() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs.length === 0) return;
+
+    const activeTab = tabs[0];
+    const url = activeTab.url || '';
+    isTargetSiteActive = url.includes("streak.tech") || url.includes("zerodha.com");
+    console.log(isTargetSiteActive ? "Target site is ACTIVE!" : "Target site is NOT active.");
+
+    if (isTargetSiteActive) {
+      //injectContentScript(activeTab.id)
+      ensureContentScript(activeTab.id, () => {
+        const msg = "Target site is Active! : " + url;
+        logMessage(msg);
+        sendColorChangeToActiveTab(activeTab.id);
+        sendStartObserverMessageToTab(activeTab.id);
       });
-  }
-  function sendColorChangeToActiveTab() {
-  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    if (tab?.id) {
-        console.log("current tab : "+tab?.id)
-      //chrome.tabs.sendMessage(tab.id, { action: "change-color" });
     }
   });
 }
+function injectContentScript(tabId) {
+  chrome.scripting.executeScript({
+    target: { tabId },
+    files: ['contentScript.js']
+  }, () => {
+    console.log("contentScript.js injected into tab:", tabId);
+  });
+}
+function ensureContentScript(tabId, callback) {
+  chrome.tabs.sendMessage(tabId, { action: "ping" }, (response) => {
+    if (chrome.runtime.lastError || !response) {
+      console.log("Content script not found, injecting...");
+      chrome.scripting.executeScript({
+        target: { tabId },
+        files: ["contentScript.js"]
+      }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn("Injection failed:", chrome.runtime.lastError.message);
+        } else {
+          console.log("Content script injected.");
+          callback?.(); // Run next logic only after injection
+        }
+      });
+    } else {
+      console.log("✅ Content script already injected.");
+      callback?.(); // Already injected, run next logic
+    }
+  });
+}
+
+
+function sendColorChangeToActiveTab(tabId) {
+  if (tabId) {
+    chrome.tabs.sendMessage(tabId, { action: "change-colour", colour: "blue" }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("Color change failed:", chrome.runtime.lastError.message);
+      } else {
+        console.log("Color change message sent successfully.");
+      }
+    });
+  }
+}
+
+function sendStartObserverMessageToTab(tabId) {
+  chrome.tabs.sendMessage(tabId, { action: "start-notificationObserver" }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.warn("Observer start failed:", chrome.runtime.lastError.message);
+    } else {
+      console.log("Observer start message sent successfully.");
+    }
+  });
+}
+

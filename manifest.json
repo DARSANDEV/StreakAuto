@@ -9,7 +9,7 @@
     "128": "images/icon.png"
   },
   "background": {
-    "service_worker": "background-c.js",
+    "service_worker": "background-b.js",
     "type": "module"
   },
   "content_scripts": [
