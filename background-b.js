@@ -35,9 +35,9 @@ chrome.storage.sync.get({ "isExtensionEnabled":Boolean }, (result) => {
 //     }
 //     //manageWebSocket();
 // });
-if(isExtentionEnabled){
+//if(isExtentionEnabled){
     checkActiveTabsAndExecute();
-}
+//}
 function checkActiveTabsAndExecute() {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         if (tabs.length === 0) return;
@@ -49,7 +49,7 @@ function checkActiveTabsAndExecute() {
             const msg=  "Target Site is Active! : " + url;
                logMessage(msg);
            sendColorChangeToActiveTab();
-           manageWebSocket();
+          // manageWebSocket();
         }
         
     });
@@ -61,6 +61,7 @@ function sendColorChangeToActiveTab() {
     }
   });
 }
+manageWebSocket();
 function manageWebSocket() {
     if (isExtentionEnabled && istargetSiteActive) {
         if (!websocket) {
@@ -79,7 +80,8 @@ function createWebSocketConnection() {
     logMessage(msg)
     chrome.storage.local.get("instance", (data) => {
         if (data.instance) {
-            websocket = new WebSocket(`wss://${data.instance}/ws/demoPushNotifications`);
+            websocket = new WebSocket('wss://nt-op.streak.tech/notification');
+            console.log("websocket connection created")
             setupWebSocketHandlers();
         }
     });
